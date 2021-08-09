@@ -4,6 +4,9 @@ import { ScoreStats } from '../interface/score-stats.interface';
 import { WizardData } from '../interface/wizard-data.interface';
 import { RootStore } from './RootStore';
 import { WizardStore } from './WizardStore';
+import { Ranking } from '../interface/ranking.interface';
+import staticRanking from '../ranking.json';
+import staticCustomRanking from '../custom_ranking.json';
 
 export class RankStore extends WizardStore {
   private baseScore = 1000;
@@ -50,9 +53,32 @@ export class RankStore extends WizardStore {
       minNameScore: Math.min(...nameScores),
       maxNameScore: Math.max(...nameScores),
     };
+
     this.customRanking = this.evaluateRank();
     this.custom = false;
     this.ranking = this.evaluateRank();
+
+    // const cr = this.customRanking
+    //   .sort((a, b) => {
+    //     return Number(a.id) > Number(b.id) ? 1 : -1
+    //   }).map(wizard => {
+    //     return {
+    //       rank: wizard.rank,
+    //       score: wizard.score
+    //     }
+    //   });
+    // const r = this.ranking
+    //   .sort((a, b) => {
+    //     return Number(a.id) > Number(b.id) ? 1 : -1
+    //   }).map(wizard => {
+    //     return {
+    //       rank: wizard.rank,
+    //       score: wizard.score
+    //     }
+    //   });
+    // localStorage.setItem("custom_ranking", JSON.stringify(cr));
+    // localStorage.setItem("ranking", JSON.stringify(r));
+
     this.updateUserWizards();
 
     const rankObeserver = extendObservable(this, {
@@ -220,7 +246,17 @@ export class RankStore extends WizardStore {
     return this.baseScore - score + this.baseScore * 0.2;
   }
 
-  score(wizard: WizardData): Score {
+  score(wizard: WizardData, fromStatic = false): Score {
+    if (fromStatic) {
+      if (this.custom) {
+        const customRankings: Ranking[] = staticCustomRanking;
+        return customRankings[Number(wizard.id)].score;
+      } else {
+        const rankings: Ranking[] = staticRanking;
+        return rankings[Number(wizard.id)].score;
+      }
+    }
+
     const {
       minAffinityWeight,
       maxAffinityWeight,
