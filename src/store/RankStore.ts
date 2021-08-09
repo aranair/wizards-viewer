@@ -246,7 +246,7 @@ export class RankStore extends WizardStore {
     return this.baseScore - score + this.baseScore * 0.2;
   }
 
-  score(wizard: WizardData, fromStatic = false): Score {
+  score(wizard: WizardData, fromStatic = true): Score {
     if (fromStatic) {
       if (this.custom) {
         const customRankings: Ranking[] = staticCustomRanking;
